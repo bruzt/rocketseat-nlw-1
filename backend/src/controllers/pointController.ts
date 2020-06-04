@@ -16,11 +16,22 @@ export default {
                 .select('points.*')
                 .join('point_items', 'points.id', '=', 'point_items.point_id')
                 .whereIn('point_items.item_id', parsedItems)
-                .where('city', String(city))
-                .where('uf', String(uf))
+                .where('city', 'like', `%${String(city).toLowerCase()}%`)
+                .where('uf', 'like', `%${String(uf).toLowerCase()}%`)
                 .distinct();
 
-            return res.json(points);
+            const pointsItems = [];
+            for(let i=0; i < points.length; i++){
+
+                const items = await knex('items')
+                    .select('items.title')
+                    .join('point_items', 'items.id', '=', 'point_items.item_id')
+                    .where('point_items.point_id', '=', points[i].id)
+                
+                pointsItems.push({ ...points[i], items });
+            };
+
+            return res.json(pointsItems);
 
         } catch (error) {
             console.error(error);
@@ -66,14 +77,14 @@ export default {
         } = req.body;
 
         const point = {
-            image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=50',
+            image: image || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=50',
             name,
             email,
             whatsapp,
             latitude,
             longitude,
-            city,
-            uf,
+            city: String(city).toLowerCase(),
+            uf: String(uf).toLowerCase(),
         };
 
         try {

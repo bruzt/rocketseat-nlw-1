@@ -6,7 +6,9 @@
     "scripts": {
         "start": "npm run dev",
         "dev": "npx ts-node-dev --ignore-watch node_modules --transpileOnly src/server.ts",
-        "prod": "npx ts-node src/server.ts"
+        "prod": "npx ts-node src/server.ts",
+        "migrate": "npx knex migrate:latest",
+        "seed": "npx knex seed:run"
     },
     "keywords": [],
     "author": "",
