@@ -48,7 +48,7 @@ const Points: React.FC = () => {
 
     useEffect( () => {
 
-        //fetchLocation();
+        fetchLocation();
         fetchItems();
 
     }, []);
@@ -142,12 +142,12 @@ const Points: React.FC = () => {
                 <Text style={styles.description}>Encontre no mapa um ponto de coleta.</Text>
 
                 <View style={styles.mapContainer}>
-                    {/*(getLocation[0] !== 0) && */(
+                    {(getLocation[0] !== 0) && (
                         <MapView 
                             style={styles.map}
                             initialRegion={{ 
-                                latitude: /*getLocation[0],*/ -22.4746482, 
-                                longitude: /*getLocation[1],*/-47.458847,
+                                latitude: getLocation[0], //-22.4746482, 
+                                longitude: getLocation[1], //-47.458847,
                                 latitudeDelta: 0.014,
                                 longitudeDelta: 0.014
                             }}
