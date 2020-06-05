@@ -23,6 +23,8 @@ export default {
             const pointsItems = [];
             for(let i=0; i < points.length; i++){
 
+                points[i].image = `http://192.168.1.9:3001/uploads/${points[i].image}`;
+
                 const items = await knex('items')
                     .select('items.title')
                     .join('point_items', 'items.id', '=', 'point_items.item_id')
@@ -49,6 +51,8 @@ export default {
 
             if(!point) return res.status(400).json({ message: 'point not found' });
 
+            point.image = `http://192.168.1.9:3001/uploads/${point.image}`;
+
             const items = await knex('items')
                 .join('point_items', 'items.id', '=', 'point_items.item_id')
                 .where('point_items.point_id', '=', id)
@@ -65,7 +69,6 @@ export default {
     store: async (req: Request, res: Response) => {
 
         const {
-            image,
             name,
             email,
             whatsapp,
@@ -77,12 +80,12 @@ export default {
         } = req.body;
 
         const point = {
-            image: image || 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=50',
+            image: req.file.filename,
             name,
             email,
             whatsapp,
-            latitude,
-            longitude,
+            latitude: Number(latitude),
+            longitude: Number(longitude),
             city: String(city).toLowerCase(),
             uf: String(uf).toLowerCase(),
         };
@@ -93,12 +96,12 @@ export default {
             
             const [ point_id ] = await trx('points').insert(point);
 
-            const pointItems = items.map( (item: number) => {
-                return {
-                    point_id,
-                    item_id: item
-                }
-            })
+            const pointItems = items
+                .split(',')
+                .map( (item: string) => ({
+                        point_id,
+                        item_id: Number(item.trim())
+                }));
             
             await trx('point_items').insert(pointItems);
 

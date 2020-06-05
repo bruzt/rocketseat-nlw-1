@@ -10,6 +10,7 @@ import logo from '../../assets/logo.svg';
 import api from '../../services/api';
 
 import LeafletMap from '../../components/LeafletMap';
+import Dropzone from '../../components/dropzone';
 
 export interface Item {
     id: number;
@@ -37,6 +38,7 @@ const CreatePoint: React.FC = () => {
     const [getSelectedUf, setSelectedUf] = useState<string>('0');
     const [getSelectedCity, setSelectedCity] = useState<string>('0');
     const [getSelectedItems, setSelectedItems] = useState<number[]>([]);
+    const [getSelectedImage, setSelectedImage] = useState<File>();
 
     const [getSelectedPosition, setSelectedPosition] = useState<[number, number]>([0, 0])
 
@@ -103,7 +105,7 @@ const CreatePoint: React.FC = () => {
 
     function handleMapClick(event: LeafletMouseEvent){
 
-        setSelectedPosition([event.latlng.lat, event.latlng.lng])
+        setSelectedPosition([event.latlng.lat, event.latlng.lng]);
     }
 
     async function handleSubmit(event: MouseEvent<HTMLButtonElement>) {
@@ -123,7 +125,19 @@ const CreatePoint: React.FC = () => {
                 getSelectedItems.length > 0
             ){
 
-                await api.post('/points', {
+                const data = new FormData();
+
+                data.append('name', getEntityName);
+                data.append('email', getEntityEmail);
+                data.append('whatsapp', getEntityWhatsapp);
+                data.append('latitude', String(getSelectedPosition[0]));
+                data.append('longitude', String(getSelectedPosition[1]));
+                data.append('city', getSelectedCity);
+                data.append('uf', getSelectedUf);
+                data.append('items', getSelectedItems.join(','));
+                if(getSelectedImage) data.append('image', getSelectedImage);
+
+                /*const data = {
                     name: getEntityName,
                     email: getEntityEmail,
                     whatsapp: getEntityWhatsapp,
@@ -132,7 +146,9 @@ const CreatePoint: React.FC = () => {
                     city: getSelectedCity,
                     uf: getSelectedUf,
                     items: getSelectedItems
-                });
+                }*/
+
+                await api.post('/points', data);
 
                 alert('Ponto de coleta criado');
 
@@ -168,9 +184,12 @@ const CreatePoint: React.FC = () => {
               </Link>
             </header>
 
+
             <form>
                 <h1>Cadastro do<br/>ponto de coleta</h1>
 
+                <Dropzone onFileUploaded={setSelectedImage} />
+                
                 <fieldset>
                     <legend>
                         <h2>Dados</h2>
